@@ -273,7 +273,12 @@
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
-    DBPickerCell *cell = (DBPickerCell *)pickerView.superview.superview.superview; // hacky way to get cell
+    DBPickerCell *cell = nil;
+    for (UIView *view = pickerView.superview; view; view = view.superview) {
+        if ([view isKindOfClass:[DBPickerCell class]]) {
+            cell = (DBPickerCell *)view;
+        }
+    }
     
     [self.datastore setRoleForPrincipal:cell.principal to:(DBRole)row];
     [self.datastore sync:nil];
