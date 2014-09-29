@@ -211,8 +211,10 @@
         DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
         
         if (account == nil) {
-            // Link to Dropbox
-            [[DBAccountManager sharedManager] linkFromController:self];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // Link to Dropbox
+                [[DBAccountManager sharedManager] linkFromController:self];
+            });
         } else {
             // Unlink from Dropbox
             [account unlink];
