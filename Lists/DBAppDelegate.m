@@ -33,7 +33,9 @@
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
-    if ([[url lastPathComponent] isEqualToString:@"connect"]) {
+    NSString *action = [url lastPathComponent];
+
+    if ([action isEqualToString:@"connect"]) {
         // Account linked to Dropbox -- db-gmd9bz0ihf8t30o://1/connect
         DBAccount *account = [[DBAccountManager sharedManager] handleOpenURL:url];
         
@@ -49,6 +51,8 @@
             
             return YES;
         }
+    } else if ([action isEqualToString:@"cancel"]) {
+        // Do nothing if user cancels login
     } else {
         // Shared datastore -- Lists://
         NSString *datastoreId = [url host];
