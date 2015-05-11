@@ -22,6 +22,7 @@ static void *liveQueryContext = &liveQueryContext;
 
 @property CBLDatabase *database;
 @property CBLLiveQuery *liveQuery;
+@property NSArray *result;
 
 @end
 
@@ -40,26 +41,14 @@ static void *liveQueryContext = &liveQueryContext;
 //    self.isAddingList = [[self liveQuery] count] < 1;
 }
 
-- (void)viewDidAppear:(BOOL)animated
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    [super viewDidAppear:animated];
-    
-    // Observe changes to datastore list (possibly from other devices)
-    __weak typeof(self) weakSelf = self;
-    [[DBDatastoreManager sharedManager] addObserver:self block:^() {
-        // Reload list of lists to get changes
-        [weakSelf.tableView reloadData];
-    }];
-
-    [self.tableView reloadData];
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-    [super viewWillDisappear:animated];
-    
-    // Stop listening for changes to the datastores
-    [[DBDatastoreManager sharedManager] removeObserver:self];
+    if (context == liveQueryContext) {
+        self.result = self.liveQuery.rows.allObjects;
+        [self.tableView reloadData];
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 #pragma mark - Table view data source
@@ -80,7 +69,7 @@ static void *liveQueryContext = &liveQueryContext;
     }
     
     // List count
-    return [[[DBDatastoreManager sharedManager] listDatastores:nil] count];
+    return [self.result count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -93,12 +82,11 @@ static void *liveQueryContext = &liveQueryContext;
 
     // List cell
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ListCell" forIndexPath:indexPath];
-    
-    NSArray *datastores = [[[DBDatastoreManager sharedManager] listDatastores:nil] sortedArrayUsingDescriptors:self.sortDescriptors];
-    DBDatastoreInfo *datastoreInfo = [datastores objectAtIndex:indexPath.row];
 
-    cell.textLabel.text = datastoreInfo.title;
+    CBLQueryRow *aRow = [self.result objectAtIndex:indexPath.row];
+    CBLDocument *aList = [aRow document];
     
+    cell.textLabel.text = [aList propertyForKey:@"title"];
     return cell;
 }
 
@@ -140,12 +128,10 @@ static void *liveQueryContext = &liveQueryContext;
 {
     if ([textField.text length]) {
         // Add new list / datastore
-        DBDatastore *datastore = [[DBDatastoreManager sharedManager] createDatastore:nil];
-        datastore.title = textField.text;
-        [datastore sync:nil];
-        
-        // Close the datastore - potentially deleted, or re-opened in DBListViewController
-        [datastore close];
+        CBLDocument *newList = [self.database createDocument];
+
+        NSDictionary *properties = @{@"title": textField.text};
+        [newList putProperties:properties error:nil];
     }
     
     // Clear text field
