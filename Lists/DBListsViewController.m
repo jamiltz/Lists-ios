@@ -11,10 +11,17 @@
 #import <Dropbox/Dropbox.h>
 #import "DBListViewController.h"
 
+#import <CouchbaseLite/CouchbaseLite.h>
+
+static void *liveQueryContext = &liveQueryContext;
+
 @interface DBListsViewController () <UIActionSheetDelegate>
 
 @property (nonatomic, strong) NSArray *sortDescriptors;
 @property (nonatomic, assign) BOOL isAddingList;
+
+@property CBLDatabase *database;
+@property CBLLiveQuery *liveQuery;
 
 @end
 
@@ -24,11 +31,13 @@
 {
     [super viewDidLoad];
     
-    // No lists yet? Show row to add a list
-    self.isAddingList = [[[DBDatastoreManager sharedManager] listDatastores:nil] count] < 1;
+    self.database = [[CBLManager sharedInstance] databaseNamed:@"listsapp" error:nil];
+
+    self.liveQuery = [[self.database createAllDocumentsQuery] asLiveQuery];
+    [self.liveQuery addObserver:self forKeyPath:@"rows" options:0 context:liveQueryContext];
     
-    // Sort lists by most recently updated
-    self.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"mtime" ascending:NO]];
+    // No lists yet? Show row to add a list
+//    self.isAddingList = [[self liveQuery] count] < 1;
 }
 
 - (void)viewDidAppear:(BOOL)animated
