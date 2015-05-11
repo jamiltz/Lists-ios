@@ -33,8 +33,6 @@
 		4C39EF0019871C2600AE7462 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C39EEFF19871C2600AE7462 /* libz.dylib */; };
 		4C39EF031988227500AE7462 /* DBListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C39EF021988227500AE7462 /* DBListViewController.m */; };
 		4DE7A22E17D9017E8F4D2695 /* libPods-Lists.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35F6C8ED36C0BB5CB93950AE /* libPods-Lists.a */; };
-		BEB74A711AFFB6A8003D1F7D /* DBTask.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB74A701AFFB6A8003D1F7D /* DBTask.m */; };
-		BEB74A741AFFB6C5003D1F7D /* DBList.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB74A731AFFB6C5003D1F7D /* DBList.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,10 +81,6 @@
 		4C39EF011988227500AE7462 /* DBListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBListViewController.h; sourceTree = "<group>"; };
 		4C39EF021988227500AE7462 /* DBListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DBListViewController.m; sourceTree = "<group>"; };
 		780116EA561D3D80D325FEFD /* Pods-Lists.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Lists.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Lists/Pods-Lists.debug.xcconfig"; sourceTree = "<group>"; };
-		BEB74A6F1AFFB6A8003D1F7D /* DBTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBTask.h; sourceTree = "<group>"; };
-		BEB74A701AFFB6A8003D1F7D /* DBTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DBTask.m; sourceTree = "<group>"; };
-		BEB74A721AFFB6C5003D1F7D /* DBList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBList.h; sourceTree = "<group>"; };
-		BEB74A731AFFB6C5003D1F7D /* DBList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DBList.m; sourceTree = "<group>"; };
 		DF5E579F5ADDA5E8163A3D3F /* Pods-Lists.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Lists.release.xcconfig"; path = "Pods/Target Support Files/Pods-Lists/Pods-Lists.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -173,10 +167,6 @@
 		4C39EEBE1986F52B00AE7462 /* Lists */ = {
 			isa = PBXGroup;
 			children = (
-				BEB74A6F1AFFB6A8003D1F7D /* DBTask.h */,
-				BEB74A701AFFB6A8003D1F7D /* DBTask.m */,
-				BEB74A721AFFB6C5003D1F7D /* DBList.h */,
-				BEB74A731AFFB6C5003D1F7D /* DBList.m */,
 				4C39EEC71986F52B00AE7462 /* DBAppDelegate.h */,
 				4C39EEC81986F52B00AE7462 /* DBAppDelegate.m */,
 				4C39EECA1986F52B00AE7462 /* Main_iPhone.storyboard */,
@@ -363,8 +353,6 @@
 				4C39EEC91986F52B00AE7462 /* DBAppDelegate.m in Sources */,
 				4C39EF031988227500AE7462 /* DBListViewController.m in Sources */,
 				4C39EEC51986F52B00AE7462 /* main.m in Sources */,
-				BEB74A741AFFB6C5003D1F7D /* DBList.m in Sources */,
-				BEB74A711AFFB6A8003D1F7D /* DBTask.m in Sources */,
 				4C2AB12E198B11D500B3611D /* DBShareViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
