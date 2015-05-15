@@ -11,10 +11,18 @@
 #import <Dropbox/Dropbox.h>
 #import "DBListViewController.h"
 
+#import <CouchbaseLite/CouchbaseLite.h>
+
+static void *liveQueryContext = &liveQueryContext;
+
 @interface DBListsViewController () <UIActionSheetDelegate>
 
 @property (nonatomic, strong) NSArray *sortDescriptors;
 @property (nonatomic, assign) BOOL isAddingList;
+
+@property CBLDatabase *database;
+@property CBLLiveQuery *liveQuery;
+@property NSArray *result;
 
 @end
 
@@ -24,33 +32,23 @@
 {
     [super viewDidLoad];
     
+    self.database = [[CBLManager sharedInstance] databaseNamed:@"listsapp" error:nil];
+
+    self.liveQuery = [[self.database createAllDocumentsQuery] asLiveQuery];
+    [self.liveQuery addObserver:self forKeyPath:@"rows" options:0 context:liveQueryContext];
+    
     // No lists yet? Show row to add a list
-    self.isAddingList = [[[DBDatastoreManager sharedManager] listDatastores:nil] count] < 1;
-    
-    // Sort lists by most recently updated
-    self.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"mtime" ascending:NO]];
+//    self.isAddingList = [[self liveQuery] count] < 1;
 }
 
-- (void)viewDidAppear:(BOOL)animated
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    [super viewDidAppear:animated];
-    
-    // Observe changes to datastore list (possibly from other devices)
-    __weak typeof(self) weakSelf = self;
-    [[DBDatastoreManager sharedManager] addObserver:self block:^() {
-        // Reload list of lists to get changes
-        [weakSelf.tableView reloadData];
-    }];
-
-    [self.tableView reloadData];
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-    [super viewWillDisappear:animated];
-    
-    // Stop listening for changes to the datastores
-    [[DBDatastoreManager sharedManager] removeObserver:self];
+    if (context == liveQueryContext) {
+        self.result = self.liveQuery.rows.allObjects;
+        [self.tableView reloadData];
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
 }
 
 #pragma mark - Table view data source
@@ -71,7 +69,7 @@
     }
     
     // List count
-    return [[[DBDatastoreManager sharedManager] listDatastores:nil] count];
+    return [self.result count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -84,12 +82,11 @@
 
     // List cell
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ListCell" forIndexPath:indexPath];
-    
-    NSArray *datastores = [[[DBDatastoreManager sharedManager] listDatastores:nil] sortedArrayUsingDescriptors:self.sortDescriptors];
-    DBDatastoreInfo *datastoreInfo = [datastores objectAtIndex:indexPath.row];
 
-    cell.textLabel.text = datastoreInfo.title;
+    CBLQueryRow *aRow = [self.result objectAtIndex:indexPath.row];
+    CBLDocument *aList = [aRow document];
     
+    cell.textLabel.text = [aList propertyForKey:@"title"];
     return cell;
 }
 
@@ -131,12 +128,10 @@
 {
     if ([textField.text length]) {
         // Add new list / datastore
-        DBDatastore *datastore = [[DBDatastoreManager sharedManager] createDatastore:nil];
-        datastore.title = textField.text;
-        [datastore sync:nil];
-        
-        // Close the datastore - potentially deleted, or re-opened in DBListViewController
-        [datastore close];
+        CBLDocument *newList = [self.database createDocument];
+
+        NSDictionary *properties = @{@"title": textField.text};
+        [newList putProperties:properties error:nil];
     }
     
     // Clear text field

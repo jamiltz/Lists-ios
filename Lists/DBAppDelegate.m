@@ -11,22 +11,18 @@
 #import <Dropbox/Dropbox.h>
 #import "DBListViewController.h"
 
+#import <CouchbaseLite/CouchbaseLite.h>
+
 @implementation DBAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    DBAccountManager *accountManager = [[DBAccountManager alloc] initWithAppKey:@"gmd9bz0ihf8t30o" secret:@"gt6onalc86cbetu"];
-    [DBAccountManager setSharedManager:accountManager];
+    CBLDatabase *database = [[CBLManager sharedInstance] databaseNamed:@"listsapp" error:nil];
     
-    DBAccount *account = [[DBAccountManager sharedManager] linkedAccount];
-    
-    if (account) {
-        // Use Dropbox datastores
-        [DBDatastoreManager setSharedManager:[DBDatastoreManager managerForAccount:account]];
-    } else {
-        // Use local datastores
-        [DBDatastoreManager setSharedManager:[DBDatastoreManager localManagerForAccountManager:[DBAccountManager sharedManager]]];
-    }
+    NSURL *syncUrl = [[NSURL alloc] initWithString:@"http://localhost:4984/db"];
+    CBLReplication *push = [database createPushReplication:syncUrl];
+    push.continuous = YES;
+    [push start];
     
     return YES;
 }
